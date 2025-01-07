@@ -23,6 +23,14 @@ Raise your (virtual) 🖐 if you:
 
 -   Needed to document your working environment, but didn't know how
 
+### Project-centric Workflow
+
+This workshop assumes that you actively work in RStudio project environments. RStudio projects help with setting up your work environment for a separate projects with their own working directory, scripts, and history. This synergies particularly well with `{renv}`, which we will use for package management.
+
+In this workshop, you should be in the `NSIR-package-management` project environment, as indicated by the top right portion of the R Studio window.
+
+If not, you can open the project by navigating to the workshop directory in Explorer (for Windows) or Finder (for MacOS) and opening `R-package-management-workshop.Rproj`.
+
 ### Packages, Libraries, and Repositories
 
 ![](images/r_env.png){width="567"}
@@ -45,15 +53,7 @@ Raise your (virtual) 🖐 if you:
 
     -   You can see which repositories are currently set up in your session with `getOption("repos")`; when you call `install.packages("{pkgname}")`, R will look for `pkgname` in each repository in turn.
 
-### Project-centric Workflow
-
-This workshop assumes that you actively work in RStudio project environments. RStudio projects help with setting up your work environment for a separate projects with their own working directory, scripts, and history. This synergies particularly well with `{renv}`, which we will use for package management.
-
-In this workshop, you should be in the `NSIR-package-management` project environment, as indicated by the top right portion of the R Studio window.
-
-If not, you can open the project by navigating to the workshop directory in Explorer (for Windows) or Finder (for MacOS) and opening `R-package-management-workshop.Rproj`.
-
-### How R finds packages
+### How R finds packages (default behavior)
 
 By default, each **R** session uses the *same* set of library paths. This implies that if you were to install `dplyr 0.8.2`, that package would then become available in all other projects regardless of which version of `dplyr` was being used in each of them.
 
@@ -123,7 +123,7 @@ In a nutshell, `{renv}` has three primary commands you will need:
 
 Let's start with setting up `{renv}` to manage a project. There are a few ways to do this:
 
-1.  Initialize `renv` when creating a new R Project, or
+1.  Initialize `{renv}` when creating a new R Project, or
 2.  Running `renv::init()` on a pre-existing project
 
 ```{r}
@@ -133,7 +133,7 @@ renv::init()
 
 What do you notice? We see a some messages printed on the console, a new renv folder and renv lockfile.
 
-We see that **.RProfile** is also created. **.RProfile** is run every time you start R in that project. `renv` uses this to configure library path for your project.
+We see that **.RProfile** is also created. **.RProfile** is run every time you start R in that project. `{renv}` uses this to configure library path for your project.
 
 Now let's see what libraries are available to us
 
@@ -143,7 +143,7 @@ Now let's see what libraries are available to us
 
 ### EXERCISE 3
 
-Which repositories are set up in your current session? Which one is the project library? What is it's position in the library search paths?
+Which repositories are set up in your current session? Which one is the project library? What is its position in the library search paths?
 
 ```{r}
 
@@ -160,11 +160,11 @@ install.packages("ggplot2")
 renv::install("ggplot2")
 ```
 
-`renv` knows that `install.packages()` is the same as `renv::install()`
+`{renv}` knows that `install.packages()` is the same as `renv::install()`
 
 Why did R install all these other packages? Let's talk about dependencies..
 
-Also where does R search for a package? For example suppose we want to load ggplot2 functions into our workspace
+Also where does R search for a package? For example suppose we want to load `{ggplot2}` functions into our workspace
 
 ```{r}
 find.package("ggplot2")
@@ -178,7 +178,9 @@ find.package("ggplot2") # run again but outside this project
 
 What do you notice?
 
-Once we've done some more work on the project, we take a snapshot of the current environment -
+Once we've done some more work on the project, we take a snapshot of the current environment.
+
+Demo: Create a new script using other packages (i.e. `ggplot2`)
 
 ```{r}
 renv::status() # find current status of project library
@@ -214,42 +216,42 @@ renv::history()
 renv::revert(commit = "abc123")
 ```
 
-The best practice is to set up both Git and renv within an RStudio Project whenever you start working on a new project!
+The best practice is to set up both Git and `{renv}` within an RStudio Project whenever you start working on a new project!
 
 Using Git, share your project sources, alongside the generated lockfile `renv.lock`. Be sure to also share the generated auto-loaders in `.Rprofile` and `renv/activate.R`.
 
-When a collaborator first launches in this project, `renv` should automatically bootstrap itself, thereby downloading and installing the appropriate version of `renv` into the project library. After this has completed, they can then use `renv::restore()` to restore the project library locally on their machine. See [this](https://rstudio.github.io/renv/articles/collaborating.html) page for more details.
+When a collaborator first launches in this project, `{renv}` should automatically bootstrap itself, thereby downloading and installing the appropriate version of `{renv}` into the project library. After this has completed, they can then use `renv::restore()` to restore the project library locally on their machine. See [this](https://rstudio.github.io/renv/articles/collaborating.html) page for more details.
 
 ### Demonstration for collaborating
 
-Let's first go ahead and commit the changes we made by adding `renv` control of the project and push the changes to Github.
+Let's first go ahead and commit the changes we made by adding `{renv}` control of the project and push the changes to Github.
 
 Now suppose you are a collaborator on the project. You create a new project by downloading from the source Git project. This will also download the renv files. Renv will then bootstrap and ask you to run `renv::restore()` to re-create the original R package environment in the new folder.
 
-## `renv` is just one part of reproducible data science!
+## `{renv}` is just one part of reproducible data science!
 
-`renv`, on its own, is *not* a panacea. It solves only one part of the problem -- reproduction of a project's **R** package dependencies. There are a myriad of other factors that can affect the results of an analysis, including (but not limited to):
+`{renv}`, on its own, is *not* a panacea. It solves only one part of the problem -- reproduction of a project's **R** package dependencies. There are a myriad of other factors that can affect the results of an analysis, including (but not limited to):
 
 -   The version of **R**,
 -   The operating system in use,
 -   The compiler flags / versions used when **R** and packages are built,
 -   The LAPACK / BLAS system(s) in use (BLAS -Basic Linear Algebra Subprograms- is a library of vector, vector-vector, matrix-vector and matrix-matrix operations. LAPACK, is a library of dense and banded matrix linear algebra routines such as solving linear systems, the eigenvalue- and singular value decomposition.)
 
-## Uninstalling renv
+## Uninstalling `{renv}`
 
-If you find renv isn't the right fit for your project, deactivating and uninstalling it is easy.
+If you find `{renv}` isn't the right fit for your project, deactivating and uninstalling it is easy.
 
--   To deactivate renv in a project, use `renv::deactivate()`. This removes the renv auto-loader from the project `.Rprofile`, but doesn't touch any other renv files used in the project. If you'd like to later re-activate renv, you can do so with [`renv::activate()`](https://rstudio.github.io/renv/reference/activate.html).
+-   To deactivate `{renv}` in a project, use `renv::deactivate()`. This removes the `{renv}` auto-loader from the project `.Rprofile`, but doesn't touch any other `{renv}` files used in the project. If you'd like to later re-activate `{renv}`, you can do so with [`renv::activate()`](https://rstudio.github.io/renv/reference/activate.html).
 
--   To completely remove renv from a project, call `renv::deactivate(clean = TRUE)`. If you later want to use renv for this project, you'll need to start from scratch with `renv::init().`
+-   To completely remove `{renv}` from a project, call `renv::deactivate(clean = TRUE)`. If you later want to use `{renv}` for this project, you'll need to start from scratch with `renv::init().`
 
 ## Additional Resources:
 
--   Using renv to track the version of your packages in R ([video](https://www.youtube.com/watch?v=yc7ZB4F_dc0))
+-   Using `{renv}` to track the version of your packages in R ([video](https://www.youtube.com/watch?v=yc7ZB4F_dc0))
 -   December 2023 Webinar: Reproducible Environments using renv NHS-R ([video](https://www.youtube.com/watch?v=7lCOjGrwclQ))
 -   [Introduction to renv](https://rstudio.github.io/renv/articles/renv.html)
-
-### 
+-   [Git introduction for R users](https://happygitwithr.com/)
+-   [R Project workflow](https://r4ds.had.co.nz/workflow-projects.html)
 
 ## Answers to exercises
 
