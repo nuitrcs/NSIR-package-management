@@ -27,21 +27,31 @@ Raise your (virtual) 🖐 if you:
 
 ![](images/r_env.png){width="567"}
 
--   **Package**: A package is a standardized collection of material extending R, e.g. providing code, data, or documentation. You *interact* with packages. Each package has a version number associated with it.
+-   **Package**: A package is a standardized collection of material extending R functionalities, e.g. providing code, data, or documentation. You *interact* with packages. Each package has a version number associated with it. Packages can be distributed and shared with others.
 
--   **Library**: A place (directory) where R knows to find packages it can use. Where you *store* packages.
+-   **Library**: A place (directory) where R knows to find packages it can use. Where you *store* packages. There can be multiple libraries.
 
-    -   You can see your current libraries with `.libPaths()`
+    -   You can see your current libraries with `.libPaths()`
 
-    -   See which packages are available in each library with`lapply(.libPaths(), list.files)`.
+    -   See which packages are available in each library with `lapply(.libPaths(), list.files)`.
 
 -   **Repository:** Primary vehicle for organizing and distributing R packages. Where you *install* packages from.
 
-    -   `install.packages()` gets a package from a repository (usually somewhere on the Internet) and puts it in a library (a directory on your computer). 
+    -   `install.packages()` gets a package from a **repository** (usually somewhere on the Internet) and puts it in a library (a directory on your computer).
 
-    -   The most important repository is CRAN 
+    -   The most important repository is **CRAN** (Comprehensive R Archive Network)
 
-    -   You can see which repositories are currently set up in your session with `getOption("repos")`; when you call`install.packages("{pkgname}")`, R will look for`pkgname` in each repository in turn.
+        -   Other repositories include [Bioconductor](https://bioconductor.org/), [Posit Public Package Manager](https://packagemanager.posit.co/client/#/), and [R Universe](https://r-universe.dev/search)
+
+    -   You can see which repositories are currently set up in your session with `getOption("repos")`; when you call `install.packages("{pkgname}")`, R will look for `pkgname` in each repository in turn.
+
+### Project-centric Workflow
+
+This workshop assumes that you actively work in RStudio project environments. RStudio projects help with setting up your work environment for a separate projects with their own working directory, scripts, and history. This synergies particularly well with `{renv}`, which we will use for package management.
+
+In this workshop, you should be in the `NSIR-package-management` project environment, as indicated by the top right portion of the R Studio window.
+
+If not, you can open the project by navigating to the workshop directory in Explorer (for Windows) or Finder (for MacOS) and opening `R-package-management-workshop.Rproj`.
 
 ### How R finds packages
 
@@ -51,20 +61,20 @@ By default, each **R** session uses the *same* set of library paths. This implie
 
 ### EXERCISE 1
 
-What is the path to the R library on your system? How many library paths are there? Which library does R search first to find a package?
+What is the path to the R library on your system? How many library paths are there?
 
 ```{r}
-.libPaths()
+
 ```
 
-You might see a user library, a system library and a project library.
+You might see a user library, a system library or a project library.
 
 ### EXERCISE 2
 
 Which repositories are set up in your current session?
 
 ```{r}
-getOption("repos")
+
 ```
 
 ### Lifespan of a typical data science project
@@ -121,7 +131,9 @@ Let's start with setting up `{renv}` to manage a project. There are a few ways t
 renv::init()
 ```
 
-What do you notice? We see a some messages printed on the console, a new renv folder and renv lockfile. ***.RProfile*** is run when R is started, it activates `renv` for your project by running `renv::activate()` in the background.
+What do you notice? We see a some messages printed on the console, a new renv folder and renv lockfile.
+
+We see that **.RProfile** is also created. **.RProfile** is run every time you start R in that project. `renv` uses this to configure library path for your project.
 
 Now let's see what libraries are available to us
 
@@ -144,7 +156,7 @@ An alternative way to see your libraries and packages therein, is by clicking on
 Now, let's assume we want to create some plots and we install some new plotting libraries
 
 ```{r}
-install.packages("ggplot2") 
+install.packages("ggplot2")
 renv::install("ggplot2")
 ```
 
@@ -195,7 +207,7 @@ By default, every project contains only a single `renv.lock`. A natural question
 
 `renv` delegates this responsibility to your version control system, and provides some special helpers for working specifically with [Git](https://git-scm.com/).
 
-```{r}
+```{r eval=FALSE}
 # find prior commits in which renv.lock has changed
 renv::history()
 # revert renv.lock to its state at a prior commit
@@ -216,7 +228,7 @@ Now suppose you are a collaborator on the project. You create a new project by d
 
 ## `renv` is just one part of reproducible data science!
 
-`renv`, on its own, is *not* a panacea. It solves only one part of the problem \-- reproduction of a project's **R** package dependencies. There are a myriad of other factors that can affect the results of an analysis, including (but not limited to):
+`renv`, on its own, is *not* a panacea. It solves only one part of the problem -- reproduction of a project's **R** package dependencies. There are a myriad of other factors that can affect the results of an analysis, including (but not limited to):
 
 -   The version of **R**,
 -   The operating system in use,
