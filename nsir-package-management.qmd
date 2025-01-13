@@ -157,7 +157,7 @@ Which repositories are set up in your current session? Which one is the project 
 
 An alternative way to see your libraries and packages therein, is by clicking on the "**Packages**" tab in the Files panel. You should see a **Project Library** and a **User Library**.
 
-### Working with `{renv}` 
+### Working with `{renv}`
 
 Now, let's assume we want to create some plots and we install some new plotting libraries
 
