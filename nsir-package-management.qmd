@@ -43,6 +43,12 @@ If not, you can open the project by navigating to the workshop directory in Expl
 
     -   See which packages are available in each library with `lapply(.libPaths(), list.files)`.
 
+    -   By default, there are two libraries:
+
+        -   **User library**: where packages are installed by the user
+
+        -   **System library**: where base packages for R are installed
+
 -   **Repository:** Primary vehicle for organizing and distributing R packages. Where you *install* packages from.
 
     -   `install.packages()` gets a package from a **repository** (usually somewhere on the Internet) and puts it in a library (a directory on your computer).
@@ -67,7 +73,7 @@ What is the path to the R library on your system? How many library paths are the
 
 ```
 
-You might see a user library, a system library or a project library.
+Which library is used by default when installing a new package? (Hint: check the documentation for `install.packages()` by running `?install.packages` . Maybe there's something about it in the `lib` argument)
 
 ### EXERCISE 2
 
@@ -119,7 +125,7 @@ In a nutshell, `{renv}` has three primary commands you will need:
 
 3.  Use `renv::restore()` to restore the project-local library's state.
 
-    If needed, you can use `renv::deactivate()` to deactivate `renv` in a project and delete all associated renv files afterwards.
+    If needed, you can use `renv::deactivate()` to deactivate `{renv}` in a project and delete all associated `{renv}` files afterwards.
 
 Let's start with setting up `{renv}` to manage a project. There are a few ways to do this:
 
@@ -131,7 +137,7 @@ Let's start with setting up `{renv}` to manage a project. There are a few ways t
 renv::init()
 ```
 
-What do you notice? We see a some messages printed on the console, a new renv folder and renv lockfile.
+What do you notice? We see a some messages printed on the console, a new `renv/` folder and renv lockfile (`renv.lock`).
 
 We see that **.RProfile** is also created. **.RProfile** is run every time you start R in that project. `{renv}` uses this to configure library path for your project.
 
@@ -151,7 +157,7 @@ Which repositories are set up in your current session? Which one is the project 
 
 An alternative way to see your libraries and packages therein, is by clicking on the "**Packages**" tab in the Files panel. You should see a **Project Library** and a **User Library**.
 
-### Working with `{renv}`
+### Working with `{renv}` 
 
 Now, let's assume we want to create some plots and we install some new plotting libraries
 
@@ -164,7 +170,7 @@ renv::install("ggplot2")
 
 Why did R install all these other packages? Let's talk about dependencies..
 
-Also where does R search for a package? For example suppose we want to load `{ggplot2}` functions into our workspace
+Also where does R search for a package? For example suppose we want to load `{ggplot2}` functions into our workspace.
 
 ```{r}
 find.package("ggplot2")
