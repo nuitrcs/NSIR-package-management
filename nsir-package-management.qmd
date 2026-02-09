@@ -1,0 +1,281 @@
+---
+output:
+  html_document:
+    df_print: paged
+    code_download: TRUE
+    toc: true
+    toc_depth: 1
+editor_options:
+  chunk_output_type: console
+---
+
+# Package Management in R
+
+## Introductory Concepts
+
+### Why should you bother with package management?
+
+Raise your (virtual) 🖐 if you:
+
+-   Revisited an old R script, and it didn't work
+
+-   Shared R code with a colleague, but they can't get it to run
+
+-   Needed to document your working environment, but didn't know how
+
+### Project-centric Workflow
+
+This workshop assumes that you actively work in RStudio project environments. RStudio projects help with setting up your work environment for a separate projects with their own working directory, scripts, and history. This synergies particularly well with `{renv}`, which we will use for package management.
+
+In this workshop, you should be in the `NSIR-package-management` project environment, as indicated by the top right portion of the R Studio window.
+
+If not, you can open the project by navigating to the workshop directory in Explorer (for Windows) or Finder (for MacOS) and opening `R-package-management-workshop.Rproj`.
+
+### Packages, Libraries, and Repositories
+
+![](images/r_env.png){width="567"}
+
+-   **Package**: A package is a standardized collection of material extending R functionalities, e.g. providing code, data, or documentation. You *interact* with packages. Each package has a version number associated with it. Packages can be distributed and shared with others.
+
+-   **Library**: A place (directory) where R knows to find packages it can use. Where you *store* packages. There can be multiple libraries.
+
+    -   You can see your current libraries with `.libPaths()`
+
+    -   See which packages are available in each library with `lapply(.libPaths(), list.files)`.
+
+    -   By default, there are two libraries:
+
+        -   **User library**: where packages are installed by the user
+
+        -   **System library**: where base packages for R are installed
+
+-   **Repository:** Primary vehicle for organizing and distributing R packages. Where you *install* packages from.
+
+    -   `install.packages()` gets a package from a **repository** (usually somewhere on the Internet) and puts it in a library (a directory on your computer).
+
+    -   The most important repository is **CRAN** (Comprehensive R Archive Network)
+
+        -   Other repositories include [Bioconductor](https://bioconductor.org/), [Posit Public Package Manager](https://packagemanager.posit.co/client/#/), and [R Universe](https://r-universe.dev/search)
+
+    -   You can see which repositories are currently set up in your session with `getOption("repos")`; when you call `install.packages("{pkgname}")`, R will look for `pkgname` in each repository in turn.
+
+### How R finds packages (default behavior)
+
+By default, each **R** session uses the *same* set of library paths. This implies that if you were to install `dplyr 0.8.2`, that package would then become available in all other projects regardless of which version of `dplyr` was being used in each of them.
+
+![](images/shared-library.svg)
+
+### EXERCISE 1
+
+What is the path to the R library on your system? How many library paths are there?
+
+```{r}
+
+```
+
+Which library is used by default when installing a new package? (Hint: check the documentation for `install.packages()` by running `?install.packages` . Maybe there's something about it in the `lib` argument)
+
+### EXERCISE 2
+
+Which repositories are set up in your current session?
+
+```{r}
+
+```
+
+### Lifespan of a typical data science project
+
+![](images/lifecycle.png)
+
+How do you record the name and version of packages used for analysis over the lifespan of a project?
+
+## Reproducible Environments with `{renv}`
+
+```{r}
+install.packages("renv")
+```
+
+The `{renv}` package helps you create reproducible environments for your R projects. Use `{renv}` to make your R projects more:
+
+-   **Isolated**: Installing a new or updated package for one project won't break your other projects, and vice versa. That's because `{renv}` gives each project its own private package library.
+
+-   **Portable**: Easily transport your projects from one computer to another, even across different platforms. `{renv}` makes it easy to install the packages your project depends on
+
+-   **Reproducible**: `{renv}` records the exact package versions you depend on, and ensures those exact versions are the ones that get installed wherever you go.
+
+![](images/project-library.svg)
+
+### How does `{renv}` work?
+
+![](images/lifecycle_snapshot.png)
+
+`{renv}` takes a snapshot of your project library as you go along and stores it in a JSON lock file.
+
+![](images/renv_lockfile.png){width="303"}
+
+![](images/renv_lockfile_json.png){width="762"}
+
+### Getting started with `{renv}`
+
+In a nutshell, `{renv}` has three primary commands you will need:
+
+1.  Use `renv::init()` to initialize a project with a project-local library,
+
+2.  Use `renv::snapshot()` to save the project-local library's state,
+
+3.  Use `renv::restore()` to restore the project-local library's state.
+
+    If needed, you can use `renv::deactivate()` to deactivate `{renv}` in a project and delete all associated `{renv}` files afterwards.
+
+Let's start with setting up `{renv}` to manage a project. There are a few ways to do this:
+
+1.  Initialize `{renv}` when creating a new R Project, or
+2.  Running `renv::init()` on a pre-existing project
+
+```{r}
+# initialize renv
+renv::init()
+```
+
+What do you notice? We see a some messages printed on the console, a new `renv/` folder and renv lockfile (`renv.lock`).
+
+We see that **.RProfile** is also created. **.RProfile** is run every time you start R in that project. `{renv}` uses this to configure library path for your project.
+
+Now let's see what libraries are available to us
+
+```{r}
+.libPaths()
+```
+
+### EXERCISE 3
+
+Which repositories are set up in your current session? Which one is the project library? What is its position in the library search paths?
+
+```{r}
+
+```
+
+An alternative way to see your libraries and packages therein, is by clicking on the "**Packages**" tab in the Files panel. You should see a **Project Library** and a **User Library**.
+
+### Working with `{renv}`
+
+Now, let's assume we want to create some plots and we install some new plotting libraries
+
+```{r}
+install.packages("ggplot2")
+renv::install("ggplot2")
+```
+
+`{renv}` knows that `install.packages()` is the same as `renv::install()`
+
+Why did R install all these other packages? Let's talk about dependencies..
+
+Also where does R search for a package? For example suppose we want to load `{ggplot2}` functions into our workspace.
+
+```{r}
+find.package("ggplot2")
+```
+
+However, what happens if we are outside the R Project?
+
+```{r}
+find.package("ggplot2") # run again but outside this project
+```
+
+What do you notice?
+
+Once we've done some more work on the project, we take a snapshot of the current environment.
+
+Demo: Create a new script using other packages (i.e. `ggplot2`)
+
+```{r}
+renv::status() # find current status of project library
+renv::snapshot() # save the project's library state
+```
+
+The state of your project library will be encoded into a *lockfile*, called `renv.lock`. The *lockfile* is a text (JSON) file, enumerating the packages installed in your project, their versions, and their *sources*. The lockfile encodes the information required to later recover and re-install packages as necessary. This is useful for:
+
+-   **Time capsules**, where you might want to freeze a project such that you can later return to the project with a record of the packages originally used to run the project,
+
+-   **Collaborative workflows**, where you might want to ensure all collaborators are working with the exact same set of packages, and
+
+-   **Deployments**, where you'd like to be sure that your project, when run remotely, uses the exact same set of packages that you were testing with locally.
+
+Given a lockfile `renv.lock` previously created by `renv::snapshot()`, you can restore the state of your project library using `renv::restore()`:
+
+```{r}
+renv::restore()
+```
+
+Calling `renv::restore()` will download and re-install all of the declared packages as necessary.
+
+## Git with renv
+
+By default, every project contains only a single `renv.lock`. A natural question, then, is: *How do I manage the history of my `renv.lock`?*
+
+`renv` delegates this responsibility to your version control system, and provides some special helpers for working specifically with [Git](https://git-scm.com/).
+
+```{r eval=FALSE}
+# find prior commits in which renv.lock has changed
+renv::history()
+# revert renv.lock to its state at a prior commit
+renv::revert(commit = "abc123")
+```
+
+The best practice is to set up both Git and `{renv}` within an RStudio Project whenever you start working on a new project!
+
+Using Git, share your project sources, alongside the generated lockfile `renv.lock`. Be sure to also share the generated auto-loaders in `.Rprofile` and `renv/activate.R`.
+
+When a collaborator first launches in this project, `{renv}` should automatically bootstrap itself, thereby downloading and installing the appropriate version of `{renv}` into the project library. After this has completed, they can then use `renv::restore()` to restore the project library locally on their machine. See [this](https://rstudio.github.io/renv/articles/collaborating.html) page for more details.
+
+### Demonstration for collaborating
+
+Let's first go ahead and commit the changes we made by adding `{renv}` control of the project and push the changes to Github.
+
+Now suppose you are a collaborator on the project. You create a new project by downloading from the source Git project. This will also download the renv files. Renv will then bootstrap and ask you to run `renv::restore()` to re-create the original R package environment in the new folder.
+
+## `{renv}` is just one part of reproducible data science!
+
+`{renv}`, on its own, is *not* a panacea. It solves only one part of the problem -- reproduction of a project's **R** package dependencies. There are a myriad of other factors that can affect the results of an analysis, including (but not limited to):
+
+-   The version of **R**,
+-   The operating system in use,
+-   The compiler flags / versions used when **R** and packages are built,
+-   The LAPACK / BLAS system(s) in use (BLAS -Basic Linear Algebra Subprograms- is a library of vector, vector-vector, matrix-vector and matrix-matrix operations. LAPACK, is a library of dense and banded matrix linear algebra routines such as solving linear systems, the eigenvalue- and singular value decomposition.)
+
+## Uninstalling `{renv}`
+
+If you find `{renv}` isn't the right fit for your project, deactivating and uninstalling it is easy.
+
+-   To deactivate `{renv}` in a project, use `renv::deactivate()`. This removes the `{renv}` auto-loader from the project `.Rprofile`, but doesn't touch any other `{renv}` files used in the project. If you'd like to later re-activate `{renv}`, you can do so with [`renv::activate()`](https://rstudio.github.io/renv/reference/activate.html).
+
+-   To completely remove `{renv}` from a project, call `renv::deactivate(clean = TRUE)`. If you later want to use `{renv}` for this project, you'll need to start from scratch with `renv::init().`
+
+## Additional Resources:
+
+-   Using `{renv}` to track the version of your packages in R ([video](https://www.youtube.com/watch?v=yc7ZB4F_dc0))
+-   December 2023 Webinar: Reproducible Environments using renv NHS-R ([video](https://www.youtube.com/watch?v=7lCOjGrwclQ))
+-   [Introduction to renv](https://rstudio.github.io/renv/articles/renv.html)
+-   [Git introduction for R users](https://happygitwithr.com/)
+-   [R Project workflow](https://r4ds.had.co.nz/workflow-projects.html)
+
+## Answers to exercises
+
+### EXERCISE 1
+
+```{r}
+.libPaths() # file path to R package library
+length(.libPaths()) # how many library paths
+```
+
+### EXERCISE 2
+
+```{r}
+getOption("repos")
+```
+
+### EXERCISE 3
+
+```{r}
+.libPaths()[1] # the first library should be the project-local library
+```
