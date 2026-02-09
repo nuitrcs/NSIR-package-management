@@ -236,9 +236,9 @@ Now suppose you are a collaborator on the project. You create a new project by d
 
 ## `{renv}` is just one part of reproducible data science!
 
-`{renv}`, on its own, is *not* a panacea. It solves only one part of the problem -- reproduction of a project's **R** package dependencies. There are a myriad of other factors that can affect the results of an analysis, including (but not limited to):
+`{renv}`, on its own, is *not* a panacea. It solves only one part of the problem -- reproduction of a project's **R** package dependencies. There are a myriad of other factors that can affect the results of an analysis, including (but not limited to):gi
 
--   The version of **R**,
+-   The version of **R**,git s
 -   The operating system in use,
 -   The compiler flags / versions used when **R** and packages are built,
 -   The LAPACK / BLAS system(s) in use (BLAS -Basic Linear Algebra Subprograms- is a library of vector, vector-vector, matrix-vector and matrix-matrix operations. LAPACK, is a library of dense and banded matrix linear algebra routines such as solving linear systems, the eigenvalue- and singular value decomposition.)
